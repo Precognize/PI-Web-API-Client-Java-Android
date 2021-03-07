@@ -1663,8 +1663,8 @@ public class StreamSetApi {
 				}
 			});
 		}
-		String[] localVarAuthNames = new String[] {"Basic" };
-		return apiClient.buildCall(localVarPath, "GET", localVarQueryParams, localVarPostBody, localVarHeaderParams, localVarFormParams, localVarAuthNames, progressRequestListener);
+		//String[] localVarAuthNames = new String[] {"Basic" };
+		return apiClient.buildCall(localVarPath, "GET", localVarQueryParams, localVarPostBody, localVarHeaderParams, localVarFormParams, null, progressRequestListener);
 	}
 
 	/**

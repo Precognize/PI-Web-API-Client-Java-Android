@@ -17,7 +17,6 @@
 package com.osisoft.pidevclub.piwebapi.webid;
 
 import com.osisoft.pidevclub.piwebapi.models.*;
-import jdk.nashorn.internal.objects.NativeUint8Array;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;

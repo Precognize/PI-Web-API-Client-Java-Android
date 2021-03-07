@@ -13,35 +13,28 @@
 
 package com.osisoft.pidevclub.piwebapi;
 
+import com.osisoft.pidevclub.piwebapi.auth.ApiKeyAuth;
+import com.osisoft.pidevclub.piwebapi.auth.Authentication;
+import com.osisoft.pidevclub.piwebapi.auth.HttpBasicAuth;
+import com.osisoft.pidevclub.piwebapi.auth.OAuth;
 import okhttp3.*;
 import okhttp3.internal.http.HttpMethod;
-import okhttp3.internal.http.RealResponseBody;
 import okhttp3.logging.HttpLoggingInterceptor;
 import okhttp3.logging.HttpLoggingInterceptor.Level;
+import okio.BufferedSink;
+import okio.Okio;
+import org.apache.commons.collections4.MapUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.lang.reflect.Type;
-
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.HashMap;
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.TimeZone;
-import java.util.concurrent.TimeUnit;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import java.net.URLEncoder;
-import java.net.URLConnection;
-
+import javax.net.ssl.*;
 import java.io.File;
-import java.io.InputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
-
+import java.lang.reflect.Type;
+import java.net.URLConnection;
+import java.net.URLEncoder;
 import java.security.GeneralSecurityException;
 import java.security.KeyStore;
 import java.security.SecureRandom;
@@ -49,25 +42,23 @@ import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
-
 import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.*;
+import java.util.Map.Entry;
+import java.util.concurrent.TimeUnit;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
-import javax.net.ssl.*;
-
-import okio.BufferedSink;
-import okio.Okio;
-
-import com.osisoft.pidevclub.piwebapi.auth.Authentication;
-import com.osisoft.pidevclub.piwebapi.auth.HttpBasicAuth;
-import com.osisoft.pidevclub.piwebapi.auth.ApiKeyAuth;
-import com.osisoft.pidevclub.piwebapi.auth.OAuth;
+import static java.util.Objects.requireNonNull;
 
 public class ApiClient {
     public static final double JAVA_VERSION;
     public static final boolean IS_ANDROID;
     public static final int ANDROID_SDK_VERSION;
+
+    private static final Logger logger = LoggerFactory.getLogger(ApiClient.class);
 
     static {
         JAVA_VERSION = Double.parseDouble(System.getProperty("java.specification.version"));
@@ -420,6 +411,17 @@ public class ApiClient {
      */
     public Map<String, Authentication> getAuthentications() {
         return authentications;
+    }
+
+    public void setAuthentication(String authMethod, Authentication authentication) {
+        logger.debug("setAuthentication " + authMethod);
+
+        requireNonNull(authMethod);
+        requireNonNull(authentication);
+
+        this.authentications = Collections.unmodifiableMap(new HashMap<>(){{
+            put(authMethod, authentication);
+        }});
     }
 
     /**
@@ -1071,6 +1073,8 @@ public class ApiClient {
      * @throws ApiException If fail to serialize the request body object
      */
     public Call buildCall(String path, String method, List<Pair> queryParams, Object body, Map<String, String> headerParams, Map<String, Object> formParams, String[] authNames, ProgressRequestBody.ProgressRequestListener progressRequestListener) throws ApiException {
+        logger.debug("buildCall: updateParamsForAuth " + Arrays.toString(authNames));
+
         updateParamsForAuth(authNames, queryParams, headerParams);
 
         final String url = buildUrl(path, queryParams);
@@ -1170,6 +1174,12 @@ public class ApiClient {
      * @param headerParams  Map of header parameters
      */
     public void updateParamsForAuth(String[] authNames, List<Pair> queryParams, Map<String, String> headerParams) {
+        //TODO: (ls) -> make more generic
+        if (MapUtils.size(authentications) == 1){
+            authentications.values().stream().findFirst().ifPresent(auth -> auth.applyToParams(queryParams, headerParams));
+            return;
+        }
+
         for (String authName : authNames) {
             Authentication auth = authentications.get(authName);
             if (auth == null) throw new RuntimeException("Authentication undefined: " + authName);

@@ -1,7 +1,10 @@
 package com.osisoft.pidevclub.piwebapi;
 
 import com.osisoft.pidevclub.piwebapi.api.*;
+import com.osisoft.pidevclub.piwebapi.auth.AuthContextApi;
 import com.osisoft.pidevclub.piwebapi.webid.WebIdHelper;
+
+import java.util.Optional;
 
 public class PIWebApiClient
 {
@@ -9,8 +12,7 @@ public class PIWebApiClient
     private String baseUrl = null;
     private Boolean cacheDisabled = null;
 
-    public PIWebApiClient(String baseUrl, String username, String password, Boolean verifySsl, Boolean debug)
-    {
+    public PIWebApiClient(String baseUrl, String username, String password, Boolean verifySsl, Boolean debug) {
         this.baseUrl = baseUrl;
         this.cacheDisabled = true;
         this.apiClient = new ApiClient();
@@ -21,8 +23,24 @@ public class PIWebApiClient
         this.apiClient.setUsername(username);
         this.apiClient.setPassword(password);
         this.apiClient.setBasePath(baseUrl);
+    }
 
+    public PIWebApiClient(String baseUrl,
+                          Boolean verifySsl,
+                          Boolean debug,
+                          AuthContextApi authContextApi
 
+    ){
+        this.baseUrl = baseUrl;
+        this.cacheDisabled = true;
+        this.apiClient = new ApiClient();
+        this.apiClient.setVerifyingSsl(verifySsl);
+        this.apiClient.setDebugging(debug);
+        this.apiClient.buildClient();
+        this.apiClient.setBasePath(baseUrl);
+
+        Optional.ofNullable(authContextApi)
+                .ifPresent(auth -> this.apiClient.setAuthentication(auth.getAuthMethod(), auth.getAuthentication()));
     }
 
     public ApiClient getApiClient() { return  this.apiClient; }
