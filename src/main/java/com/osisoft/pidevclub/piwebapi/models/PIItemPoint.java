@@ -38,6 +38,16 @@ public class PIItemPoint {
 	@SerializedName("Exception")
 	private PIErrors exception = null;
 
+	@Override
+	public String toString() {
+		return "PIItemPoint{" +
+				"identifier='" + identifier + '\'' +
+				", identifierType='" + identifierType + '\'' +
+				", object=" + object +
+				", exception=" + exception +
+				'}';
+	}
+
 	public PIItemPoint() {
 	}
 

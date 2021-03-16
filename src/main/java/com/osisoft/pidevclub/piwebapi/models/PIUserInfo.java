@@ -71,4 +71,6 @@ public class PIUserInfo {
 	public void setWebException(PIWebException webException) { this.webException = webException;}
 
 	public PIWebException getWebException() { return this.webException;}
+
+
 }
