@@ -2,14 +2,13 @@ package com.osisoft.pidevclub.piwebapi.auth;
 
 import com.google.common.collect.ImmutableMap;
 import com.osisoft.pidevclub.piwebapi.Pair;
-import com.osisoft.pidevclub.piwebapi.StringUtil;
 import com.sun.security.auth.module.Krb5LoginModule;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.Marker;
+import org.apache.logging.log4j.MarkerManager;
 import org.ietf.jgss.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.slf4j.Marker;
-import org.slf4j.MarkerFactory;
 
 import javax.annotation.concurrent.GuardedBy;
 import javax.security.auth.Subject;
@@ -41,7 +40,7 @@ import static org.ietf.jgss.GSSCredential.INITIATE_ONLY;
 import static org.ietf.jgss.GSSName.NT_USER_NAME;
 
 public class KerberosAuth implements Authentication {
-    private static final Logger logger = LoggerFactory.getLogger(KerberosAuth.class);
+    private static final Logger logger = LogManager.getLogger(KerberosAuth.class);
 
     protected static final Oid KERBEROS_OID = createOid("1.2.840.113554.1.2.2");
     protected static final Oid KERBEROS_PRINCIPAL_OID = createOid("1.2.840.113554.1.2.2.1");
@@ -184,13 +183,13 @@ public class KerberosAuth implements Authentication {
                 //options.put("storePass", "");
                 //options.put("clearPass", "");
 
-                mapToAbsolutePath(handler,KerberosHandler::getKeyTabFilePath, MarkerFactory.getMarker("keyTab"))
+                mapToAbsolutePath(handler,KerberosHandler::getKeyTabFilePath, MarkerManager.getMarker("keyTab"))
                         .ifPresent(path -> {
                             options.put("useKeyTab", "true");
                             options.put("keyTab", path);
                         });
 
-                mapToAbsolutePath(handler,KerberosHandler::getTicketCacheFilePath, MarkerFactory.getMarker("ticketCache"))
+                mapToAbsolutePath(handler,KerberosHandler::getTicketCacheFilePath, MarkerManager.getMarker("ticketCache"))
                         .ifPresent(path -> {
                             options.put("useTicketCache", "true");
                             options.put("renewTGT", mapToBooleanString(handler, KerberosHandler::getRenewTGT, true));
@@ -241,6 +240,7 @@ public class KerberosAuth implements Authentication {
     }
 
     private void logDebug(String message){
+        //TODO: (ls) -> use supplier
         if (logger.isDebugEnabled())
             logger.debug(message);
     }

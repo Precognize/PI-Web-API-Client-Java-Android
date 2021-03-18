@@ -13,10 +13,7 @@
 
 package com.osisoft.pidevclub.piwebapi;
 
-import com.osisoft.pidevclub.piwebapi.auth.ApiKeyAuth;
-import com.osisoft.pidevclub.piwebapi.auth.Authentication;
-import com.osisoft.pidevclub.piwebapi.auth.HttpBasicAuth;
-import com.osisoft.pidevclub.piwebapi.auth.OAuth;
+import com.osisoft.pidevclub.piwebapi.auth.*;
 import okhttp3.*;
 import okhttp3.internal.http.HttpMethod;
 import okhttp3.logging.HttpLoggingInterceptor;
@@ -24,8 +21,8 @@ import okhttp3.logging.HttpLoggingInterceptor.Level;
 import okio.BufferedSink;
 import okio.Okio;
 import org.apache.commons.collections4.MapUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import javax.net.ssl.*;
 import java.io.File;
@@ -58,7 +55,7 @@ public class ApiClient {
     public static final boolean IS_ANDROID;
     public static final int ANDROID_SDK_VERSION;
 
-    private static final Logger logger = LoggerFactory.getLogger(ApiClient.class);
+    private static final Logger logger = LogManager.getLogger(ApiClient.class);
 
     static {
         JAVA_VERSION = Double.parseDouble(System.getProperty("java.specification.version"));
@@ -414,7 +411,7 @@ public class ApiClient {
     }
 
     public void setAuthentication(String authMethod, Authentication authentication) {
-        logger.debug("setAuthentication " + authMethod);
+        logger.debug(() -> "setAuthentication " + authMethod);
 
         requireNonNull(authMethod);
         requireNonNull(authentication);
@@ -1073,7 +1070,7 @@ public class ApiClient {
      * @throws ApiException If fail to serialize the request body object
      */
     public Call buildCall(String path, String method, List<Pair> queryParams, Object body, Map<String, String> headerParams, Map<String, Object> formParams, String[] authNames, ProgressRequestBody.ProgressRequestListener progressRequestListener) throws ApiException {
-        logger.debug("buildCall: updateParamsForAuth " + Arrays.toString(authNames));
+        logger.debug(() -> "buildCall: updateParamsForAuth " + Arrays.toString(authNames));
 
         updateParamsForAuth(authNames, queryParams, headerParams);
 
