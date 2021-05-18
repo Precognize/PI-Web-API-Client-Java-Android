@@ -6,7 +6,7 @@
 
     <groupId>com.osisoft.pidevclub</groupId>
     <artifactId>piwebapi</artifactId>
-    <version>1.1.4-precog</version>
+    <version>1.1.5-precog</version>
     <build>
         <plugins>
             <plugin>

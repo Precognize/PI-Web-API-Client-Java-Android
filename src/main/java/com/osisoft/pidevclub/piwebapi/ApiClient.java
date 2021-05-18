@@ -20,6 +20,7 @@ import okhttp3.logging.HttpLoggingInterceptor;
 import okhttp3.logging.HttpLoggingInterceptor.Level;
 import okio.BufferedSink;
 import okio.Okio;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -47,6 +48,7 @@ import java.util.Map.Entry;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import static java.util.Objects.requireNonNull;
 
@@ -576,6 +578,28 @@ public class ApiClient {
             }
         }
         this.debugging = debugging;
+        return this;
+    }
+
+    /**
+     *
+     * @param protocols
+     * @return
+     */
+    public ApiClient setProtocols(Collection<String> protocols) {
+        if (CollectionUtils.isNotEmpty(protocols)) {
+            clientBuilder.protocols(
+                    Collections.unmodifiableList(
+                            protocols.stream().map(str -> {
+                                try {
+                                    return Protocol.get(str);
+                                } catch (IOException e) {
+                                    logger.error("setProtocols", e);
+                                    throw new RuntimeException(e);
+                                }
+                            }).collect(Collectors.toList()))
+            );
+        }
         return this;
     }
 

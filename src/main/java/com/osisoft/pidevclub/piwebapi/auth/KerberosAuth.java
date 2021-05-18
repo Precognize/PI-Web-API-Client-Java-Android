@@ -240,9 +240,7 @@ public class KerberosAuth implements Authentication {
     }
 
     private void logDebug(String message){
-        //TODO: (ls) -> use supplier
-        if (logger.isDebugEnabled())
-            logger.debug(message);
+        logger.debug(() -> message);
     }
 
 
